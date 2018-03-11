@@ -8,7 +8,7 @@ from datetime import datetime
 sensor = Adafruit_DHT.DHT22
 
 
-def get_data(pin_number):
+def get_data(pin_number, volume):
     print(pin_number)
 
     # Ask the DHT 22 at the given pin number for relative humidity and temperature
@@ -21,7 +21,6 @@ def get_data(pin_number):
     #print('Absolute Humidity: {0:.4f}'.format(absolute_humidity))
 
     # Calculate water in breath by multiplying average breath volume by absolute humidity
-    volume = .0036
     g_water = volume * absolute_humidity
     #print("Kg Water: {0:.8f}".format(g_water))
     
@@ -37,6 +36,8 @@ now = datetime.now()
 run_name = raw_input("What is the name of this run? ")
 print(run_name)
 filename = '/home/pi/humidity_data/{}_{:%Y-%m-%d_%H-%M-%S}.csv'.format(run_name, now)
+
+volume = raw_input("What is the tidal volume in m^3? ")
 
 with open(filename, 'w', 0) as csvfile:
     fieldnames = ['time',
@@ -57,8 +58,8 @@ with open(filename, 'w', 0) as csvfile:
     while True:
         breathing_rate_string = input("What is your breathing rate?")
         breathing_rate = float(breathing_rate_string)
-        incoming_data = get_data(17)
-        outgoing_data = get_data(4)
+        incoming_data = get_data(17, volume)
+        outgoing_data = get_data(4, volume)
         water_lost =  outgoing_data['g_water'] - incoming_data['g_water']
         water_lost_per_minute = water_lost * breathing_rate
         print("Water Lost Per Minute: {0:.8f}".format(water_lost_per_minute))
